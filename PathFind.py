@@ -5,6 +5,20 @@ import sys
 import pygame
 import time
 
+def findCost(curCartWeight,nextDistance,trafficLvl,nextNumItems,condition):
+    #curCartWeight and condition are updated for each node traversal. The cost is accumulated based on how much travel is still needed
+    cost = 0
+    #Defined weights to calculate cost
+    w1 = .6
+    w2 = .2
+    w3 = .2
+    #Cost calculations
+    cost += w1*curCartWeight * nextDistance * trafficLvl
+    cost += w2*nextNumItems *curCartWeight *condition #if next node has many items, we can include the time spent in that department
+    cost += w3*condition *nextDistance*trafficLvl
+
+
+
 def avergae_pixl(x, y, pixel_size, map):
 
     pixel_sample = []
