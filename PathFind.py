@@ -21,15 +21,20 @@ def findCost(curCartWeight,nextDistance,trafficLvl,nextNumItems,condition):
 
 def avergae_pixl(x, y, pixel_size, map):
 
-    pixel_sample = []
+    pixel_sample = [[],[],[]]
     for s in range(int(-pixel_size / 2), int((pixel_size / 2) + 1)):
         for t in range(int(-pixel_size / 2), int((pixel_size / 2) + 1)):
             #input()
             try:
-                pixel_sample.append(map[x + t, y + s][0])
+                pixel_sample[0].append(map[x + t, y + s][0])
+                pixel_sample[1].append(map[x + t, y + s][1])
+                pixel_sample[2].append(map[x + t, y + s][2])
             except IndexError:
                 print("IndexError: " + str((x+t,y+s)))
-    color_average = int(sum(pixel_sample) / len(pixel_sample))
+
+    color_average = (int(sum(pixel_sample[0]) / len(pixel_sample[0])),
+                     int(sum(pixel_sample[1]) / len(pixel_sample[1])),
+                     int(sum(pixel_sample[2]) / len(pixel_sample[2])))
     #print(color_average)
     return color_average
 
@@ -43,9 +48,12 @@ def reader(file, pixel_size):
     graphw = collections.defaultdict(set)
 
     nogo = []
-    # List of colours not walkable
-    for x in range(0,200):
-        nogo.append(x)
+    # Adding white colour to the nogo zone
+    for R in range(240, 255):
+        for G in range(240, 255):
+            for B in range(240, 255):
+                RGB = (R, G, B)
+                nogo.append(RGB)
 
     y = 2 * pixel_size
     print("Image len(x): " + str(size[0]))
@@ -248,8 +256,8 @@ def router():
 
 def main():
 
-    pixel_size = 10
-    file = "maze.jpg"
+    pixel_size = 20
+    file = "colormap.jpg"
     data = reader(file, pixel_size)
     map = Image.open(file)
     size = map.size
