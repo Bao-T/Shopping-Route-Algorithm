@@ -49,12 +49,14 @@ def colors():
     purple = (162, 73, 165)
     green = (33, 178, 73)
     orange = (255, 201, 14)
+    white = (255, 255, 255)
 
     redArea = []
     greenArea = []
     blueArea = []
     purpleArea = []
     orangeArea = []
+    whiteArea = []
 
     for R in range(red[0]-area, red[0]+area):
         for G in range(red[1]-area, red[1]+area):
@@ -87,11 +89,20 @@ def colors():
                 RGB = (R, G, B)
                 orangeArea.append(RGB)
 
+    for R in range(white[0]-area, white[0]):
+        for G in range(white[1]-area, white[1]):
+            for B in range(white[2]-area, white[2]):
+                RGB = (R, G, B)
+                whiteArea.append(RGB)
+
+
+
     colo = {"orange":orangeArea,
-              "purple":purpleArea,
-              "red":redArea,
-              "blue":blueArea,
-              "green":greenArea
+            "purple":purpleArea,
+            "red":redArea,
+            "blue":blueArea,
+            "green":greenArea,
+            "white":whiteArea
               }
     print("here2")
     return colo
@@ -120,7 +131,7 @@ def reader(file, pixel_size):
 
     graph = collections.defaultdict(set)
     graphw = collections.defaultdict(set)
-
+    '''
     nogo = []
     # Adding white colour to the nogo zone
     for R in range(240, 255):
@@ -128,7 +139,7 @@ def reader(file, pixel_size):
             for B in range(240, 255):
                 RGB = (R, G, B)
                 nogo.append(RGB)
-
+    '''
     #Colo has all the accessible area colors
     colo = colors()
 
@@ -197,6 +208,8 @@ def reader(file, pixel_size):
                     graph[(x + surr, y)].add((x, y))
                     graphw[(x, y), (x + surr, y)] = 1
                     graphw[(x + surr, y), (x, y)] = 1
+            elif pixel in colo["white"]:
+                print(x, y)
                 '''
                 if up_right in colo["orange"]:
                     graph[(x, y)].add((x + pixel_size, y - pixel_size))
