@@ -30,13 +30,87 @@ def avergae_pixl(x, y, pixel_size, map):
                 pixel_sample[1].append(map[x + t, y + s][1])
                 pixel_sample[2].append(map[x + t, y + s][2])
             except IndexError:
-                print("IndexError: " + str((x+t,y+s)))
+                pass
+                #print("IndexError: " + str((x+t,y+s)))
 
     color_average = (int(sum(pixel_sample[0]) / len(pixel_sample[0])),
                      int(sum(pixel_sample[1]) / len(pixel_sample[1])),
                      int(sum(pixel_sample[2]) / len(pixel_sample[2])))
     #print(color_average)
     return color_average
+
+def colors():
+    print("here")
+    colo = {}
+    area = 30
+
+    red = (237, 27, 38)
+    blue = (64, 71, 203)
+    purple = (162, 73, 165)
+    green = (33, 178, 73)
+    orange = (255, 201, 14)
+
+    redArea = []
+    greenArea = []
+    blueArea = []
+    purpleArea = []
+    orangeArea = []
+
+    for R in range(red[0]-area, red[0]+area):
+        for G in range(red[1]-area, red[1]+area):
+            for B in range(red[2]-area, red[2]+area):
+                RGB = (R, G, B)
+                redArea.append(RGB)
+
+    for R in range(green[0] - area, green[0] + area):
+        for G in range(green[1] - area, green[1] + area):
+            for B in range(green[2] - area, green[2] + area):
+                RGB = (R, G, B)
+                greenArea.append(RGB)
+
+    for R in range(blue[0] - area, blue[0] + area):
+        for G in range(blue[1] - area, blue[1] + area):
+            for B in range(blue[2] - area, blue[2] + area):
+                RGB = (R, G, B)
+                blueArea.append(RGB)
+
+    for R in range(purple[0] - area, purple[0] + area):
+        for G in range(purple[1] - area, purple[1] + area):
+            for B in range(purple[2] - area, purple[2] + area):
+                RGB = (R, G, B)
+                purpleArea.append(RGB)
+
+
+    for R in range(orange[0]-area, orange[0]+area):
+        for G in range(orange[1]-area, orange[1]+area):
+            for B in range(orange[2]-area, orange[2]+area):
+                RGB = (R, G, B)
+                orangeArea.append(RGB)
+
+    colo = {"orange":orangeArea,
+              "purple":purpleArea,
+              "red":redArea,
+              "blue":blueArea,
+              "green":greenArea
+              }
+    print("here2")
+    return colo
+
+def depCenters(depLocations):
+    centers = collections.defaultdict()
+    print(depLocations)
+    for color in depLocations:
+        x = 0
+        y = 0
+        for coord in depLocations[color]:
+            x += coord[0]
+            y += coord[1]
+        if len(depLocations[color]) > 0:
+            center = (int(x/len(depLocations[color])),int(y/len(depLocations[color])))
+            centers[color] = center
+    print(centers)
+    return centers
+
 
 def reader(file, pixel_size):
 
@@ -55,13 +129,31 @@ def reader(file, pixel_size):
                 RGB = (R, G, B)
                 nogo.append(RGB)
 
+    #Colo has all the accessible area colors
+    colo = colors()
+
+    depLocations = {
+        "green":(345, 201),
+        "blue":(517, 201),
+        "red":(173, 201),
+        "purple":(681, 201)
+    }
+
     y = 2 * pixel_size
     print("Image len(x): " + str(size[0]))
     print("Image len(y): " + str(size[1]))
-
+    count = 0
+    full = size[1]
     while y < (size[1] - (2 * pixel_size)):
         y += pixel_size
         x = 2 * pixel_size
+        # Loading screen...
+        cur = y
+        count += 1
+        percent = int((1 - (cur / full)) * 100)
+        if count % 5 == 0:
+            print("Loading: " + str(percent) + "%...")
+
         while x < (size[0] - (2 * pixel_size)):
             x += pixel_size
             #print(x,y)
@@ -70,68 +162,84 @@ def reader(file, pixel_size):
             down = avergae_pixl(x, y + pixel_size, pixel_size, map) #map[x, y + 1]
             left = avergae_pixl(x - pixel_size, y, pixel_size, map) #map[x - 1, y]
             right = avergae_pixl(x + pixel_size, y, pixel_size, map) #map[x + 1, y]
+
             up_left = avergae_pixl(x - pixel_size, y - pixel_size, pixel_size, map) #map[x - 1, y - 1]
             up_right = avergae_pixl(x + pixel_size, y - pixel_size, pixel_size, map) #map[x + 1, y - 1]
             down_left = avergae_pixl(x - pixel_size, y + pixel_size, pixel_size, map) #map[x - 1, y + 1]
             down_right = avergae_pixl(x + pixel_size, y + pixel_size, pixel_size, map) #map[x + 1, y + 1]
+
             surr = int(pixel_size)
-            if pixel not in nogo:
-                if up not in nogo:
+            if pixel in colo["orange"]:
+                if up in colo["orange"]:
                     # print("up added")
                     graph[(x, y)].add((x, y - surr))
                     graph[(x, y - surr)].add((x, y))
                     graphw[(x, y), (x, y - surr)] = 1
                     graphw[(x, y - surr), (x, y)] = 1
 
-                if down not in nogo:
+                if down in colo["orange"]:
                     # print("down added")
                     graph[(x, y)].add((x, y + surr))
                     graph[(x, y + surr)].add((x, y))
                     graphw[(x, y), (x, y + surr)] = 1
                     graphw[(x, y + surr), (x, y)] = 1
 
-                if left not in nogo:
+                if left in colo["orange"]:
                     # print("left added")
                     graph[(x, y)].add((x - surr, y))
                     graph[(x - surr, y)].add((x, y))
                     graphw[(x, y), (x - surr, y)] = 1
                     graphw[(x - surr, y), (x, y)] = 1
 
-                if right not in nogo:
+                if right in colo["orange"]:
                     # print("right added")
                     graph[(x, y)].add((x + surr, y))
                     graph[(x + surr, y)].add((x, y))
                     graphw[(x, y), (x + surr, y)] = 1
                     graphw[(x + surr, y), (x, y)] = 1
                 '''
-                if up_right not in nogo:
+                if up_right in colo["orange"]:
                     graph[(x, y)].add((x + pixel_size, y - pixel_size))
                     graph[(x + pixel_size, y - pixel_size)].add((x, y))
                     graphw[(x, y), (x + pixel_size, y - pixel_size)] = 1
                     graphw[(x + pixel_size, y - pixel_size), (x, y)] = 1
 
-                if up_left not in nogo:
+                if up_left in colo["orange"]:
                 
                     graph[(x, y)].add((x - pixel_size, y - pixel_size))
                     graph[(x - pixel_size, y - pixel_size)].add((x, y))
                     graphw[(x, y), (x - pixel_size, y - pixel_size)] = 1
                     graphw[(x - pixel_size, y - pixel_size), (x, y)] = 1
 
-                if down_right not in nogo:
+                if down_right in colo["orange"]:
                     graph[(x, y)].add((x + pixel_size, y + pixel_size))
                     graph[(x + pixel_size, y + pixel_size)].add((x, y))
                     graphw[(x, y), (x + pixel_size, y + pixel_size)] = 1
                     graphw[(x + pixel_size, y + pixel_size), (x, y)] = 1
 
-                if down_left not in nogo:
+                if down_left in colo["orange"]:
                     graph[(x, y)].add((x - pixel_size, y + pixel_size))
                     graph[(x - pixel_size, y + pixel_size)].add((x, y))
                     graphw[(x, y), (x - pixel_size, y + pixel_size)] = 1
                     graphw[(x - pixel_size, y + pixel_size), (x, y)] = 1
                 '''
-    print(graph)
-    print(graphw)
-    return graph, graphw
+            '''
+            elif pixel in colo["green"]:
+                depLocations["green"].append((x,y))
+
+            elif pixel in colo["blue"]:
+                depLocations["blue"].append((x,y))
+
+            elif pixel in colo["red"]:
+                depLocations["red"].append((x,y))
+
+            elif pixel in colo["purple"]:
+                depLocations["purple"].append((x,y))
+            '''
+    #depCenters(depLocations)
+
+
+    return graph, graphw, depLocations
 
 def test(graph):
     while True:
@@ -255,9 +363,15 @@ def router():
             # print(distance[end])
 
 def main():
+    depLocations = {
+        "green": (345, 201),
+        "blue": (517, 201),
+        "red": (173, 201),
+        "purple": (681, 201)
+    }
 
-    pixel_size = 20
-    file = "colormap.jpg"
+    pixel_size = 15
+    file = "colormap2.jpg"
     data = reader(file, pixel_size)
     map = Image.open(file)
     size = map.size
@@ -312,6 +426,12 @@ def main():
                     if (endx + x, endy + y) in data[0].keys():
                         end = (endx + x, endy + y)
             solution = dijkstra(data[0], data[1], start)
+
+            green_di = dijkstra(data[0], data[1], depLocations["green"])
+            blue_di = dijkstra(data[0], data[1], depLocations["blue"])
+            red_di = dijkstra(data[0], data[1], depLocations["red"])
+            purple_di = dijkstra(data[0], data[1], depLocations["purple"])
+
             prev = solution[1]
             path = []
             next = end
