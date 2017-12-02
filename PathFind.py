@@ -96,7 +96,6 @@ def colors():
                 whiteArea.append(RGB)
 
 
-
     colo = {"orange":orangeArea,
             "purple":purpleArea,
             "red":redArea,
@@ -143,12 +142,7 @@ def reader(file, pixel_size):
     #Colo has all the accessible area colors
     colo = colors()
 
-    depLocations = {
-        "green":(345, 201),
-        "blue":(517, 201),
-        "red":(173, 201),
-        "purple":(681, 201)
-    }
+    depLocations = []
 
     y = 2 * pixel_size
     print("Image len(x): " + str(size[0]))
@@ -202,14 +196,14 @@ def reader(file, pixel_size):
                     graphw[(x, y), (x - surr, y)] = 1
                     graphw[(x - surr, y), (x, y)] = 1
 
-                if right in colo["orange"]:
+                if right in colo["orange"] or colo["white"]:
                     # print("right added")
                     graph[(x, y)].add((x + surr, y))
                     graph[(x + surr, y)].add((x, y))
                     graphw[(x, y), (x + surr, y)] = 1
                     graphw[(x + surr, y), (x, y)] = 1
-            elif pixel in colo["white"]:
-                print(x, y)
+            if pixel in colo["white"]:
+                depLocations.append((x,y))
                 '''
                 if up_right in colo["orange"]:
                     graph[(x, y)].add((x + pixel_size, y - pixel_size))
@@ -236,7 +230,7 @@ def reader(file, pixel_size):
                     graphw[(x, y), (x - pixel_size, y + pixel_size)] = 1
                     graphw[(x - pixel_size, y + pixel_size), (x, y)] = 1
                 '''
-            '''
+            ''' 
             elif pixel in colo["green"]:
                 depLocations["green"].append((x,y))
 
@@ -251,7 +245,7 @@ def reader(file, pixel_size):
             '''
     #depCenters(depLocations)
 
-
+    print(depLocations)
     return graph, graphw, depLocations
 
 def test(graph):
@@ -383,8 +377,8 @@ def main():
         "purple": (681, 201)
     }
 
-    pixel_size = 15
-    file = "colormap2.jpg"
+    pixel_size = 10
+    file = "storemap3.jpg"
     data = reader(file, pixel_size)
     map = Image.open(file)
     size = map.size
