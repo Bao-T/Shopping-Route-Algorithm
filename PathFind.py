@@ -4,6 +4,7 @@ import math
 import sys
 import pygame
 import time
+import random
 
 #pygame.mixer.init()
 
@@ -268,6 +269,7 @@ def reader(file, pixel_size):
                 depLocations["purple"].append((x,y))
             if pixel in colo[0]["yellow"]:
                 depLocations["yellow"].append((x, y))
+
     centers = depCenters(depLocations)
     return graph, graphw, centers
 
@@ -328,7 +330,7 @@ def main():
 ###############################################################################################
     pixel_size = 20 #10
     print("Pixel size: " + str(pixel_size))
-    file = "walltest.jpg"
+    file = "star.jpg"
     data = reader(file, pixel_size)
     map = Image.open(file)
     size = map.size
@@ -341,7 +343,7 @@ def main():
     blue_di = dijkstra(data[0], data[1], depLocations["blue"])
     red_di = dijkstra(data[0], data[1], depLocations["red"])
     purple_di = dijkstra(data[0], data[1], depLocations["purple"])
-    #yellow_di = dijkstra(data[0], data[1], depLocations["yellow"])
+    yellow_di = dijkstra(data[0], data[1], depLocations["yellow"])
 
     window = pygame.display.set_mode((width, height))
     pygame.display.set_caption("CampusNavi")
@@ -374,9 +376,9 @@ def main():
                     end = None
 
         if start != None:
-            pygame.draw.circle(map, red, start, int(pixel_size/4))
+            pygame.draw.circle(map, red, start, int(pixel_size))
         if end != None:
-            pygame.draw.circle(map, red, end, int(pixel_size/4))
+            pygame.draw.circle(map, red, end, int(pixel_size))
 
             '''
             startx = start[0]
@@ -388,8 +390,7 @@ def main():
             for dep in depLocations:
 
                 for dep2 in depLocations:
-
-
+                    newcol = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
                     startx = depLocations[dep][0]
                     starty = depLocations[dep][1]
                     endx = depLocations[dep2][0]
@@ -402,6 +403,7 @@ def main():
                                 start = (startx + x, starty + y)
                             if (endx + x, endy + y) in data[0].keys():
                                 end = (endx + x, endy + y)
+
                     print("Staring location: (" + str(start[0]) + "," + str(start[1]) + ")")
                     print("Ending location: (" + str(end[0]) + "," + str(end[1]) + ")")
 
@@ -419,8 +421,8 @@ def main():
                         while prev[next]:
                             steps += 1
                             path.append(next)
-                            #print(next)
-                            pygame.draw.circle(map, red, next, 7)
+
+                            pygame.draw.circle(map, newcol, next, 7)
                             next = prev[next]
                         path.append(next)
                         print("Number of steps: " + str(steps))
@@ -430,6 +432,7 @@ def main():
                     pygame.display.update()
                     window.blit(map, (0, 0))
                     time.sleep(0.5)
+
         pygame.display.update()
         window.blit(map, (0, 0))
 main()

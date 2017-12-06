@@ -1,5 +1,7 @@
 Blue - Frozen, Yellow - Produce, Green - Sporting Goods, Red - Non-Perishables, Purple- Electronics
 
+Item name, Weight, Depratment, Item Condition
+
 Banana 0.5 1 2
 Carrot 0.5 1 2
 Potato 5.0 1 0
