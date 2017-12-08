@@ -5,6 +5,7 @@ import sys
 import pygame
 import time
 import random
+import fileinput
 
 #pygame.mixer.init()
 
@@ -406,9 +407,26 @@ def main():
     start = None
     end = None
     flag = 0
-
+    #graph format
     distances = []
 
+
+    # read list of items and selects randomly
+    items = []
+    filein = fileinput.input('GroceryStoreItemList.txt')
+    filein.readline()
+    filein.readline()
+    filein.readline()
+    filein.readline()
+
+    while True:
+        line = filein.readline()
+        if line == '':
+            break
+        a, b, c, d = line.split()
+        items += [(a, b, c, d)]
+    print(items)
+    random.shuffle(items)
     for x in range(len(depLocations)+1):
         distances.append([])
         for y in range(len(depLocations)+1):
@@ -460,9 +478,11 @@ def main():
             #Format is the following: Start Red Green Blue Purple Yellow
             print("Node distances are:")
             print("S |R |G |B |P |Y")
-            print_dist(distances)
+            #print_dist(distances)
+            print(distances)
             print(depLocations.keys())
             start = None
+
 
 
         '''
@@ -480,4 +500,6 @@ def main():
 
         pygame.display.update()
         window.blit(map, (0, 0))
+
+
 main()
