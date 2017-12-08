@@ -325,10 +325,66 @@ def dijkstra(graph, graphw, start):
                 prev[neigh] = min_node
     return dist, prev
 
+def find_route(data, pixel_size, map ,start, end):
+
+    startx = start[0]
+    starty = start[1]
+    endx = end[0]
+    endy = end[1]
+    red = (240, 26, 36)
+
+    # Finding the nearest large pixel
+    for x in range(int(-pixel_size / 2), int(pixel_size / 2)):
+        for y in range(int(-pixel_size / 2), int(pixel_size / 2)):
+            if (startx + x, starty + y) in data[0].keys():
+                start = (startx + x, starty + y)
+            if (endx + x, endy + y) in data[0].keys():
+                end = (endx + x, endy + y)
+
+    solution = dijkstra(data[0], data[1], start)
+
+    print("Staring location: (" + str(start[0]) + "," + str(start[1]) + ")")
+    print("Ending location: (" + str(end[0]) + "," + str(end[1]) + ")")
+
+    prev = solution[1]
+    path = []
+    next = end
+    end = None
+    col = (0, 0, 0)
+    count = 0
+    try:
+        steps = 0
+        while prev[next]:
+            steps += 1
+            path.append(next)
+
+            pygame.draw.circle(map, red, next, 7)
+            next = prev[next]
+        path.append(next)
+        print("Number of steps: " + str(steps))
+        # print(path)
+    except KeyError:
+        print("No path.")
+
+    return steps
+
+def print_dist(distances):
+
+    for x in distances:
+        line = ""
+        for y in x:
+            if y < 10:
+                line = line + " " + str(y) + " "
+            else:
+                line = line + str(y) + " "
+        print(line)
+
+
+
 def main():
 
 ###############################################################################################
-    pixel_size = 20 #10
+    pixel_size = 30 #10
     print("Pixel size: " + str(pixel_size))
     file = "star.jpg"
     data = reader(file, pixel_size)
@@ -339,11 +395,6 @@ def main():
     red = (240, 26, 36)
 
     depLocations = data[2]
-    green_di = dijkstra(data[0], data[1], depLocations["green"])
-    blue_di = dijkstra(data[0], data[1], depLocations["blue"])
-    red_di = dijkstra(data[0], data[1], depLocations["red"])
-    purple_di = dijkstra(data[0], data[1], depLocations["purple"])
-    yellow_di = dijkstra(data[0], data[1], depLocations["yellow"])
 
     window = pygame.display.set_mode((width, height))
     pygame.display.set_caption("CampusNavi")
@@ -351,8 +402,19 @@ def main():
     map = pygame.image.load(file).convert_alpha()
     window.blit(map, (0, 0))
     coord = None
+
     start = None
     end = None
+    flag = 0
+
+    distances = []
+
+    for x in range(len(depLocations)+1):
+        distances.append([])
+        for y in range(len(depLocations)+1):
+            distances[x].append([])
+            distances[x][y] = math.inf
+
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -372,66 +434,49 @@ def main():
                 if event.key == pygame.K_SPACE:
                     map = pygame.image.load(file).convert_alpha()
                     window.blit(map, (0, 0))
-                    start = None
-                    end = None
 
+        #If starting location is given proceed
         if start != None:
-            pygame.draw.circle(map, red, start, int(pixel_size))
+            pygame.draw.circle(map, red, start, int(pixel_size/3))
+            distances[0][0] = 0
+            count1 = 1
+            for dep in depLocations:
+                end = depLocations[dep]
+                pygame.draw.circle(map, red, end, int(pixel_size/3))
+                distances[count1][0] = find_route(data, pixel_size, map, end, start)
+                distances[0][count1] = distances[count1][0]
+                count1 += 1
+
+            count1 = 1
+            for dep1 in depLocations:
+                count2 = 1
+                start = depLocations[dep1]
+                for dep2 in depLocations:
+                    end = depLocations[dep2]
+                    distances[count2][count1] = find_route(data, pixel_size, map, end, start)
+                    count2 += 1
+                count1 += 1
+
+            #Format is the following: Start Red Green Blue Purple Yellow
+            print("Node distances are:")
+            print("S |R |G |B |P |Y")
+            print_dist(distances)
+            print(depLocations.keys())
+            start = None
+
+
+        '''
         if end != None:
             pygame.draw.circle(map, red, end, int(pixel_size))
+            flag = 1
+        if flag == 1:
+            flag = 0
+            find_route(data, pixel_size, map, end, start)
+        if start != None and end != None:
+            start = None
+            end = None
+        '''
 
-            '''
-            startx = start[0]
-            starty = start[1]
-            endx = end[0]
-            endy = end[1]
-            '''
-
-            for dep in depLocations:
-
-                for dep2 in depLocations:
-                    newcol = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-                    startx = depLocations[dep][0]
-                    starty = depLocations[dep][1]
-                    endx = depLocations[dep2][0]
-                    endy = depLocations[dep2][1]
-
-                    #Finding the nearest large pixel
-                    for x in range(int(-pixel_size/2),int(pixel_size/2)):
-                        for y in range(int(-pixel_size/2),int(pixel_size/2)):
-                            if (startx + x, starty + y) in data[0].keys():
-                                start = (startx + x, starty + y)
-                            if (endx + x, endy + y) in data[0].keys():
-                                end = (endx + x, endy + y)
-
-                    print("Staring location: (" + str(start[0]) + "," + str(start[1]) + ")")
-                    print("Ending location: (" + str(end[0]) + "," + str(end[1]) + ")")
-
-                    solution = dijkstra(data[0], data[1], start)
-
-                    prev = solution[1]
-                    path = []
-                    next = end
-                    print(next)
-                    end = None
-                    col = (0, 0 , 0)
-                    count = 0
-                    try:
-                        steps = 1
-                        while prev[next]:
-                            steps += 1
-                            path.append(next)
-
-                            pygame.draw.circle(map, newcol, next, 7)
-                            next = prev[next]
-                        path.append(next)
-                        print("Number of steps: " + str(steps))
-                        #print(path)
-                    except KeyError:
-                        print("No path.")
-                    pygame.display.update()
-                    window.blit(map, (0, 0))
-                    time.sleep(0.5)
 
         pygame.display.update()
         window.blit(map, (0, 0))
