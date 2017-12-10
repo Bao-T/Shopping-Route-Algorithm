@@ -25,6 +25,7 @@ def findCost(curCartWeight,nextDistance,trafficLvl,nextNumItems,condition):
     cost += w1*curCartWeight * nextDistance * trafficLvl
     cost += w2*nextNumItems *curCartWeight *condition #if next node has many items, we can include the time spent in that department
     cost += w3*condition *nextDistance*trafficLvl
+    return cost
 
 
 
@@ -387,7 +388,38 @@ class Department:
     def __init__(self):
         self.itemNames = []
 
-
+def findShortest(Departments, Distances):
+    #Decision Tree to check shortest path
+    optimalpath = [0,0,0,0,0,math.inf]
+    for l1 in range(5):
+        weightl1 = Departments[l1].weightD
+        Costl1 = findCost(weightl1,Distances[0][l1+1],1,Departments[l1].numItems,Departments[l1].conditionTotal)
+        for l2 in range(5):
+            if (l2 != l1):
+                weightl2 = weightl1 + Departments[l2].weightD
+                Costl2 = findCost(weightl2, Distances[l1 + 1][l2 + 1], 1, Departments[l2].numItems,
+                                  Departments[l2].conditionTotal)
+                for l3 in range(5):
+                    if (l3 != l2 and l3 != l1):
+                        weightl3 = weightl2 + Departments[l3].weightD
+                        Costl3 = findCost(weightl3, Distances[l2 + 1][l3 + 1], 1, Departments[l3].numItems,
+                                          Departments[l3].conditionTotal)
+                        for l4 in range(5):
+                            if (l4 != l3 and l4 != l2 and l4 !=l1):
+                                weightl4 = weightl3 + Departments[l4].weightD
+                                Costl4 = findCost(weightl4, Distances[l3 + 1][l4 + 1], 1, Departments[l4].numItems,
+                                                  Departments[l4].conditionTotal)
+                                for l5 in range(5):
+                                    if(l5 != l4 and l5 != l3 and l5!= l2 and l5 != l1):
+                                        weightl5 = weightl4 + Departments[l5].weightD
+                                        Costl5 = findCost(weightl5, Distances[l4 + 1][l5 + 1], 1,
+                                                          Departments[l5].numItems,
+                                                          Departments[l5].conditionTotal)
+                                        Costl5 += findCost(weightl5, Distances[l5 + 1][0], 1,0,0)
+                                        if (Costl5 < optimalpath[5]):
+                                            optimalpath = [l1,l2,l3,l4,l5,Costl5]
+                                            print(l1,l2,l3,l4,l5, Costl5)
+        return optimalpath
 
 
 def main():
@@ -418,7 +450,6 @@ def main():
     #graph format
     distances = []
 
-
     # read list of items and selects randomly
     items = []
     filein = fileinput.input('GroceryStoreItemList.txt')
@@ -447,6 +478,9 @@ def main():
 
     for x in Departments:
         print(x.numItems, x.weightD, x.itemNames, x.conditionTotal)
+
+
+
 
 
 
@@ -506,6 +540,7 @@ def main():
             #print(distances)
             print(depLocations.keys())
             start = None
+            findShortest(Departments, distances)
 
 
 
