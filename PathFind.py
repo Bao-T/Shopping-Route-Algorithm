@@ -380,6 +380,14 @@ def print_dist(distances):
                 line = line + str(y) + " "
         print(line)
 
+class Department:
+    numItems = 0
+    weightD = 0
+    conditionTotal = 0
+    def __init__(self):
+        self.itemNames = []
+
+
 
 
 def main():
@@ -419,6 +427,7 @@ def main():
     filein.readline()
     filein.readline()
 
+    Departments = [Department(),Department(),Department(),Department(),Department()]
     while True:
         line = filein.readline()
         if line == '':
@@ -427,6 +436,21 @@ def main():
         items += [(a, b, c, d)]
     print(items)
     random.shuffle(items)
+    snumber = random.randint(1,30)
+    shoppinglist = items[1:snumber]
+    print(shoppinglist)
+    for x in shoppinglist:
+        Departments[int(x[2])].numItems += 1
+        Departments[int(x[2])].weightD += float(x[1])
+        Departments[int(x[2])].itemNames.append(x[0])
+        Departments[int(x[2])].conditionTotal += float(x[3])
+
+    for x in Departments:
+        print(x.numItems, x.weightD, x.itemNames, x.conditionTotal)
+
+
+
+
     for x in range(len(depLocations)+1):
         distances.append([])
         for y in range(len(depLocations)+1):
@@ -478,8 +502,8 @@ def main():
             #Format is the following: Start Red Green Blue Purple Yellow
             print("Node distances are:")
             print("S |R |G |B |P |Y")
-            #print_dist(distances)
-            print(distances)
+            print_dist(distances)
+            #print(distances)
             print(depLocations.keys())
             start = None
 
