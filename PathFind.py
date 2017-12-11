@@ -358,14 +358,14 @@ def find_route(data, pixel_size, map ,start, end):
             steps += 1
             path.append(next)
 
-            pygame.draw.circle(map, red, next, 7)
+            pygame.draw.circle(map, red, next, 2)
             next = prev[next]
         path.append(next)
         print("Number of steps: " + str(steps))
         # print(path)
     except KeyError:
         print("No path.")
-
+        return math.inf
     return steps
 
 def print_dist(distances):
@@ -374,9 +374,12 @@ def print_dist(distances):
         line = ""
         for y in x:
             if y < 10:
+                line = line + "  " + str(y) + " "
+            elif 9 < y < 100:
                 line = line + " " + str(y) + " "
             else:
                 line = line + str(y) + " "
+
         print(line)
 
 
@@ -386,7 +389,7 @@ def main():
 ###############################################################################################
     pixel_size = 30 #10
     print("Pixel size: " + str(pixel_size))
-    file = "star.jpg"
+    file = "test5.jpg"
     data = reader(file, pixel_size)
     map = Image.open(file)
     size = map.size
@@ -459,7 +462,7 @@ def main():
 
             #Format is the following: Start Red Green Blue Purple Yellow
             print("Node distances are:")
-            print("S |R |G |B |P |Y")
+            print(" S | R | G | B | P | Y")
             print_dist(distances)
             print(depLocations.keys())
             start = None
