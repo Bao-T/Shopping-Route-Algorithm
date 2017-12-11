@@ -5,6 +5,7 @@ import sys
 import pygame
 import time
 import random
+import fileinput
 
 #pygame.mixer.init()
 
@@ -24,6 +25,7 @@ def findCost(curCartWeight,nextDistance,trafficLvl,nextNumItems,condition):
     cost += w1*curCartWeight * nextDistance * trafficLvl
     cost += w2*nextNumItems *curCartWeight *condition #if next node has many items, we can include the time spent in that department
     cost += w3*condition *nextDistance*trafficLvl
+    return cost
 
 
 
@@ -382,6 +384,45 @@ def print_dist(distances):
 
         print(line)
 
+class Department:
+    numItems = 0
+    weightD = 0
+    conditionTotal = 0
+    def __init__(self):
+        self.itemNames = []
+
+def findShortest(Departments, Distances):
+    #Decision Tree to check shortest path
+    optimalpath = [0,0,0,0,0,math.inf]
+    for l1 in range(5):
+        weightl1 = Departments[l1].weightD
+        Costl1 = findCost(weightl1,Distances[0][l1+1],1,Departments[l1].numItems,Departments[l1].conditionTotal)
+        for l2 in range(5):
+            if (l2 != l1):
+                weightl2 = weightl1 + Departments[l2].weightD
+                Costl2 = findCost(weightl2, Distances[l1 + 1][l2 + 1], 1, Departments[l2].numItems,
+                                  Departments[l2].conditionTotal)
+                for l3 in range(5):
+                    if (l3 != l2 and l3 != l1):
+                        weightl3 = weightl2 + Departments[l3].weightD
+                        Costl3 = findCost(weightl3, Distances[l2 + 1][l3 + 1], 1, Departments[l3].numItems,
+                                          Departments[l3].conditionTotal)
+                        for l4 in range(5):
+                            if (l4 != l3 and l4 != l2 and l4 !=l1):
+                                weightl4 = weightl3 + Departments[l4].weightD
+                                Costl4 = findCost(weightl4, Distances[l3 + 1][l4 + 1], 1, Departments[l4].numItems,
+                                                  Departments[l4].conditionTotal)
+                                for l5 in range(5):
+                                    if(l5 != l4 and l5 != l3 and l5!= l2 and l5 != l1):
+                                        weightl5 = weightl4 + Departments[l5].weightD
+                                        Costl5 = findCost(weightl5, Distances[l4 + 1][l5 + 1], 1,
+                                                          Departments[l5].numItems,
+                                                          Departments[l5].conditionTotal)
+                                        Costl5 += findCost(weightl5, Distances[l5 + 1][0], 1,0,0)
+                                        if (Costl5 < optimalpath[5]):
+                                            optimalpath = [l1,l2,l3,l4,l5,Costl5]
+                                            print(l1,l2,l3,l4,l5, Costl5)
+        return optimalpath
 
 
 def main():
@@ -409,8 +450,43 @@ def main():
     start = None
     end = None
     flag = 0
-
+    #graph format
     distances = []
+
+    # read list of items and selects randomly
+    items = []
+    filein = fileinput.input('GroceryStoreItemList.txt')
+    filein.readline()
+    filein.readline()
+    filein.readline()
+    filein.readline()
+
+    Departments = [Department(),Department(),Department(),Department(),Department()]
+    while True:
+        line = filein.readline()
+        if line == '':
+            break
+        a, b, c, d = line.split()
+        items += [(a, b, c, d)]
+    print(items)
+    random.shuffle(items)
+    snumber = random.randint(1,30)
+    shoppinglist = items[1:snumber]
+    print(shoppinglist)
+    for x in shoppinglist:
+        Departments[int(x[2])].numItems += 1
+        Departments[int(x[2])].weightD += float(x[1])
+        Departments[int(x[2])].itemNames.append(x[0])
+        Departments[int(x[2])].conditionTotal += float(x[3])
+
+    for x in Departments:
+        print(x.numItems, x.weightD, x.itemNames, x.conditionTotal)
+
+
+
+
+
+
 
     for x in range(len(depLocations)+1):
         distances.append([])
@@ -464,8 +540,11 @@ def main():
             print("Node distances are:")
             print(" S | R | G | B | P | Y")
             print_dist(distances)
+            #print(distances)
             print(depLocations.keys())
             start = None
+            findShortest(Departments, distances)
+
 
 
         '''
@@ -483,4 +562,6 @@ def main():
 
         pygame.display.update()
         window.blit(map, (0, 0))
+
+
 main()
