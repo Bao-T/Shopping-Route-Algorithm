@@ -359,8 +359,7 @@ def find_route(data, pixel_size, map ,start, end):
         while prev[next]:
             steps += 1
             path.append(next)
-
-            pygame.draw.circle(map, red, next, 2)
+            #pygame.draw.circle(map, red, next, 2)
             next = prev[next]
         path.append(next)
         print("Number of steps: " + str(steps))
@@ -368,7 +367,7 @@ def find_route(data, pixel_size, map ,start, end):
     except KeyError:
         print("No path.")
         return math.inf
-    return steps
+    return steps, path
 
 def print_dist(distances):
 
@@ -452,6 +451,7 @@ def main():
     flag = 0
     #graph format
     distances = []
+    paths = []
 
     # read list of items and selects randomly
     items = []
@@ -483,16 +483,13 @@ def main():
         print(x.numItems, x.weightD, x.itemNames, x.conditionTotal)
 
 
-
-
-
-
-
     for x in range(len(depLocations)+1):
         distances.append([])
+        paths.append([])
         for y in range(len(depLocations)+1):
             distances[x].append([])
             distances[x][y] = math.inf
+            paths[x].append([])
 
     while True:
         for event in pygame.event.get():
@@ -518,12 +515,18 @@ def main():
         if start != None:
             pygame.draw.circle(map, red, start, int(pixel_size/3))
             distances[0][0] = 0
+            paths[0][0] = [start]
             count1 = 1
             for dep in depLocations:
                 end = depLocations[dep]
                 pygame.draw.circle(map, red, end, int(pixel_size/3))
-                distances[count1][0] = find_route(data, pixel_size, map, end, start)
-                distances[0][count1] = distances[count1][0]
+                # Saving distances and paths.
+                disPath = find_route(data, pixel_size, map, end, start)
+                distances[count1][0] = disPath[0]
+                distances[0][count1] = disPath[0]
+                paths[count1][0] = disPath[1]
+                paths[0][count1] = disPath[1]
+
                 count1 += 1
 
             count1 = 1
@@ -532,7 +535,15 @@ def main():
                 start = depLocations[dep1]
                 for dep2 in depLocations:
                     end = depLocations[dep2]
-                    distances[count2][count1] = find_route(data, pixel_size, map, end, start)
+
+                    # Saving distances and paths.
+                    disPath = find_route(data, pixel_size, map, end, start)
+                    distances[count2][count1] = disPath[0]
+                    paths[count2][count1] = disPath[1]
+                    print("start: " + str(start))
+                    print("end: " + str(end))
+                    print("disPath: ")
+                    print(disPath)
                     count2 += 1
                 count1 += 1
 
@@ -540,6 +551,11 @@ def main():
             print("Node distances are:")
             print(" S | R | G | B | P | Y")
             print_dist(distances)
+            for case in paths:
+                for line in case:
+                    for dot in line:
+                        print(dot)
+                        pygame.draw.circle(map, red, dot, 5)
             #print(distances)
             print(depLocations.keys())
             start = None
