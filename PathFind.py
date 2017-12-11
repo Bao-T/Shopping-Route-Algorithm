@@ -18,9 +18,9 @@ def findCost(curCartWeight,nextDistance,trafficLvl,nextNumItems,condition):
     #curCartWeight and condition are updated for each node traversal. The cost is accumulated based on how much travel is still needed
     cost = 0
     #Defined weights to calculate cost
-    w1 = .6
+    w1 = .3
     w2 = .2
-    w3 = .2
+    w3 = 500
     #Cost calculations
     cost += w1*curCartWeight * nextDistance * trafficLvl
     cost += w2*nextNumItems *curCartWeight *condition #if next node has many items, we can include the time spent in that department
@@ -392,35 +392,59 @@ class Department:
 
 def findShortest(Departments, Distances):
     #Decision Tree to check shortest path
-    optimalpath = [0,0,0,0,0,math.inf]
+    optimalpath = ()
+    optimalCost = [math.inf,math.inf,math.inf,math.inf,math.inf]
+    print(optimalCost)
     for l1 in range(5):
-        weightl1 = Departments[l1].weightD
-        Costl1 = findCost(weightl1,Distances[0][l1+1],1,Departments[l1].numItems,Departments[l1].conditionTotal)
-        for l2 in range(5):
-            if (l2 != l1):
-                weightl2 = weightl1 + Departments[l2].weightD
-                Costl2 = findCost(weightl2, Distances[l1 + 1][l2 + 1], 1, Departments[l2].numItems,
-                                  Departments[l2].conditionTotal)
-                for l3 in range(5):
-                    if (l3 != l2 and l3 != l1):
-                        weightl3 = weightl2 + Departments[l3].weightD
-                        Costl3 = findCost(weightl3, Distances[l2 + 1][l3 + 1], 1, Departments[l3].numItems,
-                                          Departments[l3].conditionTotal)
-                        for l4 in range(5):
-                            if (l4 != l3 and l4 != l2 and l4 !=l1):
-                                weightl4 = weightl3 + Departments[l4].weightD
-                                Costl4 = findCost(weightl4, Distances[l3 + 1][l4 + 1], 1, Departments[l4].numItems,
-                                                  Departments[l4].conditionTotal)
-                                for l5 in range(5):
-                                    if(l5 != l4 and l5 != l3 and l5!= l2 and l5 != l1):
-                                        weightl5 = weightl4 + Departments[l5].weightD
-                                        Costl5 = findCost(weightl5, Distances[l4 + 1][l5 + 1], 1,
-                                                          Departments[l5].numItems,
-                                                          Departments[l5].conditionTotal)
-                                        Costl5 += findCost(weightl5, Distances[l5 + 1][0], 1,0,0)
-                                        if (Costl5 < optimalpath[5]):
-                                            optimalpath = [l1,l2,l3,l4,l5,Costl5]
-                                            print(l1,l2,l3,l4,l5, Costl5)
+        if (Departments[l1].numItems != 0):
+            weightl1 = Departments[l1].weightD
+            Conditionl1 = Departments[l1].conditionTotal
+            Costl1 = findCost(weightl1, Distances[0][l1 + 1], 1, Departments[l1].numItems,
+                              0)
+            for l2 in range(5):
+                if (l2 != l1) and (Departments[l2].numItems != 0):
+                    weightl2 = weightl1 + Departments[l2].weightD
+                    Conditionl2 = Conditionl1+Departments[l2].conditionTotal
+                    Costl2 = findCost(weightl2, Distances[l1 + 1][l2 + 1], 1, Departments[l2].numItems,
+                                      Conditionl1)
+                    for l3 in range(5):
+                        if (l3 != l2 and l3 != l1) and (Departments[l3].numItems !=0):
+                            weightl3 = weightl2 + Departments[l3].weightD
+                            Conditionl3 = Conditionl2 + Departments[l3].conditionTotal
+                            Costl3 = findCost(weightl3, Distances[l2 + 1][l3 + 1], 1, Departments[l3].numItems,
+                                              Conditionl3)
+                            for l4 in range(5):
+                                if (l4 != l3 and l4 != l2 and l4 !=l1) and (Departments[l4].numItems !=0):
+                                    weightl4 = weightl3 + Departments[l4].weightD
+                                    Conditionl4 = Conditionl3 + Departments[l4].conditionTotal
+                                    Costl4 = findCost(weightl4, Distances[l3 + 1][l4 + 1], 1, Departments[l4].numItems,
+                                                      Conditionl3)
+                                    for l5 in range(5):
+                                        if(l5 != l4 and l5 != l3 and l5!= l2 and l5 != l1) and (Departments[l5].numItems !=0):
+                                            weightl5 = weightl4 + Departments[l5].weightD
+                                            Conditionl5 = Conditionl4 + Departments[l5].conditionTotal
+                                            Costl5 = findCost(weightl5, Distances[l4 + 1][l5 + 1], 1,
+                                                              Departments[l5].numItems,
+                                                              Conditionl4)
+                                            Costl5 += findCost(weightl5, Distances[l5 + 1][0], 1,0,Conditionl5)
+                                            if (Costl5 < optimalCost[4]):
+                                                optimalpath = [l1,l2,l3,l4,l5]
+                                                optimalCost[4] = Costl5
+                                            #print(l1,l2,l3,l4,l5, Costl5)
+                                        elif(len(optimalpath) <= 4) and (Costl4 < float(optimalCost[3])):
+                                            optimalpath = [l1,l2,l3,l4]
+                                            optimalCost[3] = Costl4
+                                elif(len(optimalpath) <= 3) and (Costl3 < float(optimalCost[2])):
+                                    optimalpath = [l1,l2,l3]
+                                    optimalCost[2] = Costl3
+                        elif(len(optimalpath) <= 2) and (Costl2 < float(optimalCost[1])):
+                            optimalpath = [l1,l2]
+                            optimalCost[1] = Costl2
+                elif (len(optimalpath) <= 1) and (Costl1 < float(optimalCost[0])):
+                    optimalpath = [l1]
+                    optimalCost[0] = Costl1
+
+        print(optimalpath,optimalCost)
         return optimalpath
 
 
