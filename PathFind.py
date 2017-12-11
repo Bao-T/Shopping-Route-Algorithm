@@ -366,7 +366,7 @@ def find_route(data, pixel_size, map ,start, end):
         # print(path)
     except KeyError:
         print("No path.")
-        return math.inf
+        return math.inf, start
     return steps, path
 
 def print_dist(distances):
@@ -551,11 +551,19 @@ def main():
             print("Node distances are:")
             print(" S | R | G | B | P | Y")
             print_dist(distances)
+
+            #Drawing paths
+            size = 10
             for case in paths:
+                size -= 1
+                drawCol = (random.randint(200,255),random.randint(0,255),random.randint(0, 255))
                 for line in case:
                     for dot in line:
                         print(dot)
-                        pygame.draw.circle(map, red, dot, 5)
+                        pygame.draw.circle(map, drawCol, dot, size)
+                        pygame.display.update()
+
+
             #print(distances)
             print(depLocations.keys())
             start = None
