@@ -545,7 +545,7 @@ def main():
             count1 = 1
             for dep in depLocations:
                 end = depLocations[dep]
-                pygame.draw.circle(map, red, end, int(pixel_size/3))
+                #pygame.draw.circle(map, red, end, int(pixel_size/3))
                 # Saving distances and paths.
                 disPath = find_route(data, pixel_size, map, end, start)
                 distances[count1][0] = disPath[0]
@@ -578,39 +578,33 @@ def main():
             print(" S | R | G | B | P | Y")
             print_dist(distances)
 
-            #Drawing paths
-            size = 10
-            for case in paths:
-                size -= 1
-                drawCol = (random.randint(200,255),random.randint(0,255),random.randint(0, 255))
-                for line in case:
-                    for dot in line:
-                        print(dot)
-                        pygame.draw.circle(map, drawCol, dot, size)
-                        pygame.display.update()
-
-
-            #print(distances)
             print(depLocations.keys())
             start = None
             start_time = timeit.default_timer()
-            findShortest(Departments, distances)
+            optRoute = findShortest(Departments, distances)
             elapsed = timeit.default_timer() - start_time
             print(elapsed)
+            prev = 0
 
+            size = 14
+            #Draws the optimal path
+            for loc in optRoute:
+                size -= 2
+                drawCol = (random.randint(200, 255), random.randint(0, 255), random.randint(0, 255))
+                #Path between two nodes
+                path = paths[prev][loc+1]
+                #Iterates trough the coordinates of that path
+                for coord in path:
+                    pygame.draw.circle(map, drawCol, coord, size)
+                    pygame.display.update()
 
-        '''
-        if end != None:
-            pygame.draw.circle(map, red, end, int(pixel_size))
-            flag = 1
-        if flag == 1:
-            flag = 0
-            find_route(data, pixel_size, map, end, start)
-        if start != None and end != None:
-            start = None
-            end = None
-        '''
-
+                prev = loc + 1
+            path = paths[prev][0]
+            size -= 2
+            drawCol = (random.randint(200, 255), random.randint(0, 255), random.randint(0, 255))
+            for coord in path:
+                pygame.draw.circle(map, drawCol, coord, size)
+                pygame.display.update()
 
         pygame.display.update()
         window.blit(map, (0, 0))
