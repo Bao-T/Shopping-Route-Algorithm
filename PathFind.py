@@ -6,6 +6,7 @@ import pygame
 import time
 import random
 import fileinput
+import timeit
 
 #pygame.mixer.init()
 
@@ -384,11 +385,12 @@ def print_dist(distances):
         print(line)
 
 class Department:
-    numItems = 0
-    weightD = 0
-    conditionTotal = 0
+
     def __init__(self):
         self.itemNames = []
+        self.numItems = 0
+        self.weightD = 0
+        self.conditionTotal = 0
 
 def findShortest(Departments, Distances):
     #Decision Tree to check shortest path
@@ -444,8 +446,8 @@ def findShortest(Departments, Distances):
                     optimalpath = [l1]
                     optimalCost[0] = Costl1
 
-        print(optimalpath,optimalCost)
-        return optimalpath
+    print(optimalpath,optimalCost)
+    return optimalpath
 
 
 def main():
@@ -494,7 +496,7 @@ def main():
         items += [(a, b, c, d)]
     print(items)
     random.shuffle(items)
-    snumber = random.randint(1,30)
+    snumber = random.randint(1,10)
     shoppinglist = items[1:snumber]
     print(shoppinglist)
     for x in shoppinglist:
@@ -591,8 +593,10 @@ def main():
             #print(distances)
             print(depLocations.keys())
             start = None
+            start_time = timeit.default_timer()
             findShortest(Departments, distances)
-
+            elapsed = timeit.default_timer() - start_time
+            print(elapsed)
 
 
         '''
