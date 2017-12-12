@@ -20,8 +20,8 @@ def findCost(curCartWeight,nextDistance,trafficLvl,nextNumItems,condition):
     cost = 0
     #Defined weights to calculate cost
     w1 = .3
-    w2 = .2
-    w3 = 500
+    w2 = .6
+    w3 = .2
     #Cost calculations
     cost += w1*curCartWeight * nextDistance * trafficLvl
     cost += w2*nextNumItems *curCartWeight *condition #if next node has many items, we can include the time spent in that department
@@ -428,23 +428,23 @@ def findShortest(Departments, Distances):
                                             Costl5 = findCost(weightl5, Distances[l4 + 1][l5 + 1], 1,
                                                               Departments[l5].numItems,
                                                               Conditionl4)
-                                            Costl5 += findCost(weightl5, Distances[l5 + 1][0], 1,0,Conditionl5)
-                                            if (Costl5 < optimalCost[4]):
+
+                                            if (Costl5+ + findCost(weightl5, Distances[l5 + 1][0], 1,0,Conditionl5) < optimalCost[4]):
                                                 optimalpath = [l1,l2,l3,l4,l5]
-                                                optimalCost[4] = Costl5
+                                                optimalCost[4] = Costl5 + findCost(weightl5, Distances[l5 + 1][0], 1,0,Conditionl5)
                                             #print(l1,l2,l3,l4,l5, Costl5)
-                                        elif(len(optimalpath) <= 4) and (Costl4 < float(optimalCost[3])):
+                                        elif(len(optimalpath) <= 4) and (Costl4 + findCost(weightl4, Distances[l4 + 1][0], 1,0,Conditionl4) < float(optimalCost[3])):
                                             optimalpath = [l1,l2,l3,l4]
-                                            optimalCost[3] = Costl4
-                                elif(len(optimalpath) <= 3) and (Costl3 < float(optimalCost[2])):
+                                            optimalCost[3] = Costl4 + findCost(weightl4, Distances[l4 + 1][0], 1,0,Conditionl4)
+                                elif(len(optimalpath) <= 3) and (Costl3 +findCost(weightl3, Distances[l3 + 1][0], 1,0,Conditionl3) < float(optimalCost[2])):
                                     optimalpath = [l1,l2,l3]
-                                    optimalCost[2] = Costl3
-                        elif(len(optimalpath) <= 2) and (Costl2 < float(optimalCost[1])):
+                                    optimalCost[2] = Costl3 +findCost(weightl3, Distances[l3 + 1][0], 1,0,Conditionl3)
+                        elif(len(optimalpath) <= 2) and (Costl2 + findCost(weightl2, Distances[l2 + 1][0], 1,0,Conditionl2) < float(optimalCost[1])):
                             optimalpath = [l1,l2]
-                            optimalCost[1] = Costl2
-                elif (len(optimalpath) <= 1) and (Costl1 < float(optimalCost[0])):
+                            optimalCost[1] = Costl2 + findCost(weightl2, Distances[l2 + 1][0], 1,0,Conditionl2)
+                elif (len(optimalpath) <= 1) and (Costl1 + findCost(weightl1, Distances[l1 + 1][0], 1,0,Conditionl1) < float(optimalCost[0])):
                     optimalpath = [l1]
-                    optimalCost[0] = Costl1
+                    optimalCost[0] = Costl1 + findCost(weightl1, Distances[l1 + 1][0], 1,0,Conditionl1)
 
     print(optimalpath,optimalCost)
     return optimalpath
@@ -496,7 +496,7 @@ def main():
         items += [(a, b, c, d)]
     print(items)
     random.shuffle(items)
-    snumber = random.randint(1,10)
+    snumber = random.randint(1,30)
     shoppinglist = items[1:snumber]
     print(shoppinglist)
     for x in shoppinglist:
