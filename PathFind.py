@@ -21,7 +21,7 @@ def findCost(curCartWeight,nextDistance,trafficLvl,nextNumItems,condition):
     #Defined weights to calculate cost
     w1 = .3
     w2 = .6
-    w3 = .2
+    w3 = .8
     #Cost calculations
     cost += w1*curCartWeight * nextDistance * trafficLvl
     cost += w2*nextNumItems *curCartWeight *condition #if next node has many items, we can include the time spent in that department
@@ -455,7 +455,7 @@ def main():
 ###############################################################################################
     pixel_size = 30 #10
     print("Pixel size: " + str(pixel_size))
-    file = "test5.jpg"
+    file = "storemap5.jpg"
     data = reader(file, pixel_size)
     map = Image.open(file)
     size = map.size
@@ -466,7 +466,7 @@ def main():
     depLocations = data[2]
 
     window = pygame.display.set_mode((width, height))
-    pygame.display.set_caption("CampusNavi")
+    pygame.display.set_caption("StoreNavi")
 
     map = pygame.image.load(file).convert_alpha()
     window.blit(map, (0, 0))
@@ -599,7 +599,7 @@ def main():
                     pygame.display.update()
 
                 prev = loc + 1
-            path = paths[prev][0]
+            path = paths[0][prev]
             size -= 2
             drawCol = (random.randint(200, 255), random.randint(0, 255), random.randint(0, 255))
             for coord in path:
